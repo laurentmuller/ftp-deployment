@@ -92,7 +92,7 @@ class CliRunner
 
             try {
                 $deployment->deploy();
-            } catch (JobException|ServerException $e) {
+            } catch (JobException | ServerException $e) {
                 $this->logger->log("Error: {$e->getMessage()} in {$e->getFile()}:{$e->getLine()}\n\n$e", 'red');
                 $res = 1;
             }
@@ -222,18 +222,18 @@ class CliRunner
         $cmd = new CommandLine(
             <<<'XX'
 
-				FTP deployment v3.6
-				-------------------
-				Usage:
-					deployment <config_file> [-t | --test]
+                FTP deployment v3.6
+                -------------------
+                Usage:
+                    deployment <config_file> [-t | --test]
 
-				Options:
-					-t | --test       Run in test-mode.
-					--section <name>  Only deploys the named section.
-					--generate        Only generates deployment file.
-					--no-progress     Hide the progress indicators.
+                Options:
+                    -t | --test       Run in test-mode.
+                    --section <name>  Only deploys the named section.
+                    --generate        Only generates deployment file.
+                    --no-progress     Hide the progress indicators.
 
-				XX,
+                XX,
             [
                 'config' => [CommandLine::RealPath => true],
             ],
