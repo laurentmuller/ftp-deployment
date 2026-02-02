@@ -31,7 +31,7 @@ class CliRunner
 	];
 
 	/** @var string[] */
-	public array $ignoreMasks = ['*.bak', '.svn', '.git*', 'Thumbs.db', '.DS_Store', '.idea'];
+	public array $ignoreMasks = ['*.bak', '.svn', '.git*', 'Thumbs.db', '.DS_Store', '.idea', '.claude'];
 	private Logger $logger;
 	private string $configFile;
 
@@ -280,14 +280,14 @@ class CliRunner
 			'log' => preg_replace('#\.\w+$#', '.log', $this->configFile),
 			'tempdir' => sys_get_temp_dir() . '/deployment',
 			'progress' => true,
-			'colors' => (PHP_SAPI === 'cli' && ((function_exists('posix_isatty') && posix_isatty(STDOUT))
-				|| getenv('ConEmuANSI') === 'ON' || getenv('ANSICON') !== false)),
+			'colors' => self::detectColors(),
 		];
 		$config['progress'] = $options['--no-progress'] ? false : $config['progress'];
 		return $config;
 	}
 
 
+	/** @return array<string, mixed> */
 	protected function loadConfigFile(string $file): array
 	{
 		if (pathinfo($file, PATHINFO_EXTENSION) == 'php') {
@@ -298,10 +298,21 @@ class CliRunner
 	}
 
 
-	public static function toArray($val, bool $lines = false): array
+	public static function toArray(mixed $val, bool $lines = false): array
 	{
 		return is_array($val)
 			? array_filter($val)
 			: preg_split($lines ? '#\s*\n\s*#' : '#\s+#', $val, -1, PREG_SPLIT_NO_EMPTY);
+	}
+
+
+	public static function detectColors(): bool
+	{
+		return (PHP_SAPI === 'cli' || PHP_SAPI === 'phpdbg')
+			&& getenv('NO_COLOR') === false
+			&& (getenv('FORCE_COLOR')
+				|| (function_exists('sapi_windows_vt100_support')
+					? sapi_windows_vt100_support(STDOUT)
+					: @stream_isatty(STDOUT)));
 	}
 }
